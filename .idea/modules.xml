@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/java-spring.iml" filepath="$PROJECT_DIR$/.idea/java-spring.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/Innovacode_Cenfotec_Back_End.iml" filepath="$PROJECT_DIR$/.idea/Innovacode_Cenfotec_Back_End.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/demo.iml" filepath="$PROJECT_DIR$/.idea/modules/demo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/demo.main.iml" filepath="$PROJECT_DIR$/.idea/modules/demo.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/demo.test.iml" filepath="$PROJECT_DIR$/.idea/modules/demo.test.iml" />
     </modules>
   </component>
 </project>
