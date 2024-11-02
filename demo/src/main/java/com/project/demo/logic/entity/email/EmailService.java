@@ -1,5 +1,6 @@
-package com.project.demo.logic.entity.contact;
+package com.project.demo.logic.entity.email;
 
+import com.project.demo.logic.entity.contact.ContactForm;
 import jakarta.mail.Message;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -23,11 +24,12 @@ public class EmailService {
     @Autowired
     private JavaMailSender emailSender;
 
-    @Value("$(spring.mail.username)")
+    //@Value("$(spring.mail.username)")
+    @Value("${spring.mail.username}")
     private String emailTo;
 
     @Async
-    public void send(ContactForm contactForm) {
+    public void sendEmail(ContactForm contactForm) {
         MimeMessagePreparator preparator = new MimeMessagePreparator(){
 
             @Override
@@ -58,4 +60,18 @@ public class EmailService {
             throw e;
         }
     }
+    //SI NO FUNCIONA PROBAR:
+    /*
+    * @Autowired
+    private JavaMailSender mailSender;
+
+    public void sendEmail(String to, String subject, String text) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(to);
+        message.setSubject(subject);
+        message.setText(text);
+        message.setFrom("innovacodegroupcr@gmail.com");
+        mailSender.send(message);
+    }
+    * */
 }
