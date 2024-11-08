@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/users")
@@ -40,6 +41,11 @@ public class UserRestController {
     @GetMapping("/filterByName/{name}")
     public List<User> getUserById(@PathVariable String name) {
         return UserRepository.findUsersWithCharacterInName(name);
+    }
+
+    @GetMapping("/filterByEmail/{email}")
+    public Optional<User> getUserByEmail(@RequestBody String email) {
+        return UserRepository.findByEmail(email);
     }
 
     @PutMapping("/{id}")
