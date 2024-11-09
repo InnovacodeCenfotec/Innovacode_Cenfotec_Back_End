@@ -32,6 +32,6 @@ public class ContactRestController {
     public ResponseEntity<?> sendEmail(@RequestBody ContactForm contactForm) throws MessagingException {
         String message = "Technical support requested from = " + contactForm.getEmail();
         emailService.sendEmail(contactForm);
-        return ResponseEntity.ok("Email sent");
+        return ResponseEntity.ok(contactForm);
     }
 }
