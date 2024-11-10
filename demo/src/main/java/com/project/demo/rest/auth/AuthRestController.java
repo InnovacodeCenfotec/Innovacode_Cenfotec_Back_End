@@ -3,6 +3,7 @@ package com.project.demo.rest.auth;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.project.demo.logic.entity.auth.AuthenticationService;
 import com.project.demo.logic.entity.auth.JwtService;
+import com.project.demo.logic.entity.auth.OAuth2AuthenticationService;
 import com.project.demo.logic.entity.emailSender.EmailService;
 import com.project.demo.logic.entity.resetPassword.ResetPasswordRequest;
 import com.project.demo.logic.entity.rol.Role;
@@ -13,8 +14,10 @@ import com.project.demo.logic.entity.user.User;
 import com.project.demo.logic.entity.user.UserRepository;
 import com.project.demo.logic.entity.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -38,6 +41,9 @@ public class AuthRestController {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private OAuth2AuthenticationService oauth2AuthenticationService;
 
 
     private final AuthenticationService authenticationService;
@@ -96,5 +102,45 @@ public class AuthRestController {
             return ResponseEntity.badRequest().body("Invalid or expired token");
         }
         return ResponseEntity.ok("Password reset successfully");
+    }
+
+    @PostMapping("/google-login")
+    public ResponseEntity<LoginResponse> googleLogin(@RequestBody String idToken) {
+        try {
+            // Verificar el token usando OAuth2AuthenticationService
+            OAuth2User oAuth2User = oauth2AuthenticationService.verifyGoogleToken(idToken);
+
+            if (oAuth2User == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+
+            // Crear o buscar el usuario en la base de datos
+            String email = oAuth2User.getAttribute("email");
+            Optional<User> userOptional = userRepository.findByEmail(email);
+
+            User user;
+            if (userOptional.isPresent()) {
+                user = userOptional.get();
+            } else {
+                // Registrar el usuario si no existe
+                user = new User();
+                user.setEmail(email);
+                user.setRole(roleRepository.findByName(RoleEnum.USER).orElseThrow());
+                user = userRepository.save(user);
+            }
+
+            // Generar el JWT
+            String jwtToken = jwtService.generateToken(user);
+
+            // Crear el LoginResponse
+            LoginResponse loginResponse = new LoginResponse();
+            loginResponse.setToken(jwtToken);
+            loginResponse.setExpiresIn(jwtService.getExpirationTime());
+            loginResponse.setAuthUser(user);
+
+            return ResponseEntity.ok(loginResponse);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 }
