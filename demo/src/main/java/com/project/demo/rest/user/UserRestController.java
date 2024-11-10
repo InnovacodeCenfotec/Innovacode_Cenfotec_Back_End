@@ -59,10 +59,14 @@ public class UserRestController {
     @PutMapping("/{userId}")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
     public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody User user, HttpServletRequest request) {
-        Optional<User> foundOrder = userRepository.findById(userId);
-        if(foundOrder.isPresent()) {
+        Optional<User> foundUser = userRepository.findById(userId);
+        if(foundUser.isPresent()) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
-            userRepository.save(user);
+            foundUser.get().setName(user.getName());
+            foundUser.get().setLastname(user.getLastname());
+            foundUser.get().setEmail(user.getEmail());
+            foundUser.get().setRole(user.getRole());
+            userRepository.save(foundUser.get());
             return new GlobalResponseHandler().handleResponse("User updated successfully",
                     user, HttpStatus.OK, request);
         } else {
