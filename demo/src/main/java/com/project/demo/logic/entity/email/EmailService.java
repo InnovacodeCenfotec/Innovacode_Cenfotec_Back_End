@@ -56,4 +56,34 @@ public class EmailService {
         helper.setFrom(contactForm.getEmail());
         mailSender.send(mimeMessage);
     }
+
+    public void sendConfirmationEmail(@RequestBody ContactForm contactForm) throws MessagingException {
+        MimeMessage confirmation = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(confirmation);
+        helper.setSubject(contactForm.getSubject());
+
+
+        String html =
+                "<!doctype html>\n" +
+                        "<html lang=\"en\" xmlns=\"http://www.w3.org/1999/xhtml\"\n" +
+                        "      xmlns:th=\"http://www.thymeleaf.org\">\n" +
+                        "<head>\n" +
+                        "    <meta charset=\"UTF-8\">\n" +
+                        "    <meta name=\"viewport\"\n" +
+                        "          content=\"width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0\">\n" +
+                        "    <meta http-equiv=\"X-UA-Compatible\" content=\"ie=edge\">\n" +
+                        "    <title>Confirmation email</title>\n" +
+                        "</head>\n" +
+                        "<body>\n" +
+                        "<div> <h1> Hi " + contactForm.getName()+ "!</h1> </div>\n" +
+                        "<div> We received your email and will be in contact with you in the next 24 hours!</div>\n" +
+                        "<div> Best, </div>\n" +
+                        "<div> Innovacode </div>\n" +
+                        "</body>\n" +
+                        "</html>\n";
+        helper.setText(html,true);
+        helper.setTo(contactForm.getEmail());
+        helper.setFrom(innovaCode);
+        mailSender.send(confirmation);
+    }
 }
