@@ -43,6 +43,7 @@ public class User implements UserDetails {
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
     private Role role;
 
+
     // Constructors
     public User() {}
 
@@ -132,7 +133,6 @@ public class User implements UserDetails {
     public Role getRole() {
         return role;
     }
-
 
     public User setRole(Role role) {
         this.role = role;
