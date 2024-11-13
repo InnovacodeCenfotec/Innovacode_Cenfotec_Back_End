@@ -1,12 +1,11 @@
 package com.project.demo.logic.entity.auth;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collections;
 
@@ -18,15 +17,23 @@ public class OAuth2AuthenticationService {
         this.jwtService = jwtService;
     }
 
-    public OAuth2User verifyGoogleToken(String idToken) {
+    public OAuth2User verifyToken(String token) {
         try {
-            Claims claims = jwtService.extractAllClaims(idToken);
+            // Extraer las claims del token
+            Claims claims = jwtService.extractAllClaims(token);
 
-            String issuer = claims.getIssuer();
-            if (!"https://accounts.google.com".equals(issuer)) {
-                return null;
+            // Verificar si el token ha expirado
+            if (jwtService.isTokenExpired(token)) {
+                return null; // El token ha expirado
             }
 
+            // Extraer el email o username (asumiendo que viene en las claims)
+            String email = claims.get("email", String.class);
+            if (email == null) {
+                return null; // Token inválido si no contiene email
+            }
+
+            // Crear y retornar un OAuth2User
             return new DefaultOAuth2User(
                     Collections.singleton(new SimpleGrantedAuthority("USER")),
                     claims,
@@ -34,7 +41,7 @@ public class OAuth2AuthenticationService {
             );
         } catch (JwtException e) {
             e.printStackTrace();
-            return null;
+            return null; // Error en la verificación
         }
     }
 }

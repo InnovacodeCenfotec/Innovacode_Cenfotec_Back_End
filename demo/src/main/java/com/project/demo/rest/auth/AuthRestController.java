@@ -109,15 +109,15 @@ public class AuthRestController {
     }
 
     @PostMapping("/googleLogin/{idToken}")
-    public ResponseEntity<LoginResponse> googleLogin(@PathVariable String idToken) {
+    public ResponseEntity<LoginResponse> login(@PathVariable String idToken) {
         try {
-            OAuth2User oAuth2User = oauth2AuthenticationService.verifyGoogleToken(idToken);
+            OAuth2User oAuth2User = oauth2AuthenticationService.verifyToken(idToken);
 
             if (oAuth2User == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
 
-            // Crear o buscar el usuario en la base de datos
+            // Extraer el email del usuario autenticado
             String email = oAuth2User.getAttribute("email");
             Optional<User> userOptional = userRepository.findByEmail(email);
 
@@ -132,10 +132,10 @@ public class AuthRestController {
                 user = userRepository.save(user);
             }
 
-            // Generar el JWT
+            // Generar el JWT para el usuario
             String jwtToken = jwtService.generateToken(user);
 
-            // Crear el LoginResponse
+            // Preparar la respuesta
             LoginResponse loginResponse = new LoginResponse();
             loginResponse.setToken(jwtToken);
             loginResponse.setExpiresIn(jwtService.getExpirationTime());
@@ -146,4 +146,5 @@ public class AuthRestController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
 }
