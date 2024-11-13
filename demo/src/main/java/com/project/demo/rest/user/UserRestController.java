@@ -24,7 +24,7 @@ import java.util.Optional;
 @RequestMapping("/users")
 public class UserRestController {
     @Autowired
-    private UserRepository userRepository;
+    private UserRepository UserRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
