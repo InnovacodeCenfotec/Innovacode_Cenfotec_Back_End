@@ -104,9 +104,12 @@ public class AuthRestController {
         return ResponseEntity.ok("Password reset successfully");
     }
 
-    @PostMapping("/google-login")
-    public ResponseEntity<LoginResponse> googleLogin(@RequestBody String idToken) {
+    @PostMapping("/googleLogin/{idToken}")
+    public ResponseEntity<LoginResponse> googleLogin(@PathVariable String idToken) {
         try {
+
+            // ojo este método si no existe el usuario en la base de datos lo debe registrar, si si existe entonces debes llamar todo lo que está en la función de login y retornar el token, en el front lo tomas el toekn y guardas la info
+            // del usuario como lo hace el authService del front
             // Verificar el token usando OAuth2AuthenticationService
             OAuth2User oAuth2User = oauth2AuthenticationService.verifyGoogleToken(idToken);
 

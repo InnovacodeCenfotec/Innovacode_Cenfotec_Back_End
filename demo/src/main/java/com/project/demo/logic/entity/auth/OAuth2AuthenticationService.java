@@ -2,12 +2,7 @@ package com.project.demo.logic.entity.auth;
 
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.jwt.JwtDecoders;
-import org.springframework.security.oauth2.jwt.JwtException;
-import org.springframework.security.oauth2.jwt.JwtValidators;
-import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
+import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
@@ -20,7 +15,7 @@ public class OAuth2AuthenticationService {
     private final JwtDecoder jwtDecoder;
 
     public OAuth2AuthenticationService() {
-        this.jwtDecoder = JwtDecoders.fromOidcIssuerLocation("https://accounts.google.com");
+        this.jwtDecoder = NimbusJwtDecoder.withJwkSetUri("https://www.googleapis.com/oauth2/v3/certs").build();
     }
 
     public OAuth2User verifyGoogleToken(String idToken) {
