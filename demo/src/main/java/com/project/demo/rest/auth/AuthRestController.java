@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
@@ -107,10 +109,6 @@ public class AuthRestController {
     @PostMapping("/googleLogin/{idToken}")
     public ResponseEntity<LoginResponse> googleLogin(@PathVariable String idToken) {
         try {
-
-            // ojo este método si no existe el usuario en la base de datos lo debe registrar, si si existe entonces debes llamar todo lo que está en la función de login y retornar el token, en el front lo tomas el toekn y guardas la info
-            // del usuario como lo hace el authService del front
-            // Verificar el token usando OAuth2AuthenticationService
             OAuth2User oAuth2User = oauth2AuthenticationService.verifyGoogleToken(idToken);
 
             if (oAuth2User == null) {
