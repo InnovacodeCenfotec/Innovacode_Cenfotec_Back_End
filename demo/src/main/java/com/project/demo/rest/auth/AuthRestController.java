@@ -1,10 +1,9 @@
 package com.project.demo.rest.auth;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.project.demo.logic.entity.auth.AuthenticationService;
 import com.project.demo.logic.entity.auth.JwtService;
 import com.project.demo.logic.entity.auth.OAuth2AuthenticationService;
-import com.project.demo.logic.entity.emailSender.EmailService;
+import com.project.demo.logic.entity.emailSender.EmailServiceJava;
 import com.project.demo.logic.entity.resetPassword.ResetPasswordRequest;
 import com.project.demo.logic.entity.rol.Role;
 import com.project.demo.logic.entity.rol.RoleEnum;
@@ -17,8 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,7 +39,7 @@ public class AuthRestController {
     private UserService userService;
 
     @Autowired
-    private EmailService emailService;
+    private EmailServiceJava emailService;
 
     @Autowired
     private OAuth2AuthenticationService oauth2AuthenticationService;
