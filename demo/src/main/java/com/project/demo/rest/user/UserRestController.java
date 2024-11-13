@@ -17,6 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -43,9 +44,22 @@ public class UserRestController {
         meta.setPageNumber(ordersPage.getNumber() + 1);
         meta.setPageSize(ordersPage.getSize());
 
-        return new GlobalResponseHandler().handleResponse("Order retrieved successfully",
+        return new GlobalResponseHandler().handleResponse("Users retrieved successfully",
                 ordersPage.getContent(), HttpStatus.OK, meta);
     }
+    @GetMapping("/{userId}")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
+    public ResponseEntity<?> findUserById(@PathVariable Long userId, HttpServletRequest request) {
+        Optional<User> foundUser = userRepository.findById(userId);
+        if (foundUser.isPresent()) {
+            return new GlobalResponseHandler().handleResponse("User found",
+                    foundUser.get(), HttpStatus.OK, request);
+        } else {
+            return new GlobalResponseHandler().handleResponse("User id " + userId + " not found",
+                    HttpStatus.NOT_FOUND, request);
+        }
+    }
+
 
     @PostMapping
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
