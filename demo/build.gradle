@@ -19,6 +19,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -28,6 +30,8 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 	implementation 'com.sun.mail:jakarta.mail:2.0.1' //email service
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	// https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http44
+	implementation 'com.cloudinary:cloudinary-http44:1.39.0'
 
 }
 
