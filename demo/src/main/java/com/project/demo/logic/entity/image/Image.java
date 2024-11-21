@@ -13,6 +13,7 @@ public class Image {
     private String mode;
     private String openUrl;
     private String saveUrl;
+    private String sub;
 
     public String getSub() {
         return sub;
@@ -22,7 +23,7 @@ public class Image {
         this.sub = sub;
     }
 
-    private String sub;
+
 
     public Long getId() {
         return id;
