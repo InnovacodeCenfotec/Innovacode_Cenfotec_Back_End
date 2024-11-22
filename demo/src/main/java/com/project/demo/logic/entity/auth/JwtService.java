@@ -5,12 +5,14 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+
+import java.awt.*;
 import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-
+import com.project.demo.logic.entity.cloudinary.Image;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,11 @@ public class JwtService {
 
     @Value("${security.jwt.expiration-time}")
     private long jwtExpiration;
+
+    @Value("${pixlr.api.key}")
+    private String pixlrApiKey;
+
+    
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -43,6 +50,24 @@ public class JwtService {
     public long getExpirationTime() {
         return jwtExpiration;
     }
+
+
+    public String generateImageToken(Image tokenData) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("mode", tokenData.getMode());
+        claims.put("openUrl", tokenData.getUrl());
+        claims.put("saveURL", tokenData.getSaveUrl());
+        claims.put("sub", pixlrApiKey);
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(tokenData.getSub())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
 
     private String buildToken(
             Map<String, Object> extraClaims,
