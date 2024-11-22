@@ -16,6 +16,35 @@ public class Image {
     @Column(name = "url_image")
     private String url;
 
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+
+    public String getSaveUrl() {
+        return saveUrl;
+    }
+
+    public void setSaveUrl(String saveUrl) {
+        this.saveUrl = saveUrl;
+    }
+
+    public String getSub() {
+        return sub;
+    }
+
+    public void setSub(String sub) {
+        this.sub = sub;
+    }
+
+    private String mode;
+    private String saveUrl;
+    private String sub;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;

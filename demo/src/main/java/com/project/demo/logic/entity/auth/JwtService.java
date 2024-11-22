@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
-import com.project.demo.logic.entity.image.Image;
+import com.project.demo.logic.entity.cloudinary.Image;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -24,6 +24,9 @@ public class JwtService {
 
     @Value("${security.jwt.expiration-time}")
     private long jwtExpiration;
+
+    @Value("${pixlr.api.key}")
+    private String pixlrApiKey;
 
     
 
@@ -52,8 +55,9 @@ public class JwtService {
     public String generateImageToken(Image tokenData) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("mode", tokenData.getMode());
-        claims.put("openUrl", tokenData.getOpenUrl());
+        claims.put("openUrl", tokenData.getUrl());
         claims.put("saveURL", tokenData.getSaveUrl());
+        claims.put("sub", pixlrApiKey);
 
         return Jwts.builder()
                 .setClaims(claims)
