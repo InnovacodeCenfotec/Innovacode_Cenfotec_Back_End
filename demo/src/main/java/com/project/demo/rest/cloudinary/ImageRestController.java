@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/images")
+@RequestMapping("/cloudinary")
 public class ImageRestController {
 
     @Autowired
