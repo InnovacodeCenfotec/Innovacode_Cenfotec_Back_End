@@ -16,6 +16,7 @@ public class CorsConfig {
         config.addAllowedOrigin("http://localhost:4200/");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
+        config.addAllowedOrigin("https://pixrl.com");
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }

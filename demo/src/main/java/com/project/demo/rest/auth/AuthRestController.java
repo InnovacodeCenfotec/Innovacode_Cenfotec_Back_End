@@ -1,8 +1,12 @@
 package com.project.demo.rest.auth;
 
+import com.cloudinary.utils.ObjectUtils;
+import com.cloudinary.Cloudinary;
 import com.project.demo.logic.entity.auth.AuthenticationService;
 import com.project.demo.logic.entity.auth.JwtService;
 import com.project.demo.logic.entity.auth.OAuth2AuthenticationService;
+import com.project.demo.logic.entity.cloudinary.Image;
+import com.project.demo.logic.entity.cloudinary.ImageRepository;
 import com.project.demo.logic.entity.emailSender.EmailServiceJava;
 import com.project.demo.logic.entity.resetPassword.ResetPasswordRequest;
 import com.project.demo.logic.entity.rol.Role;
@@ -18,7 +22,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RequestMapping("/auth")
@@ -44,6 +50,12 @@ public class AuthRestController {
     @Autowired
     private OAuth2AuthenticationService oauth2AuthenticationService;
 
+    @Autowired
+    ImageRepository imageRepository;
+
+    @Autowired
+    Cloudinary cloudinary;
+
 
     private final AuthenticationService authenticationService;
     private final JwtService jwtService;
@@ -51,6 +63,34 @@ public class AuthRestController {
     public AuthRestController(JwtService jwtService, AuthenticationService authenticationService) {
         this.jwtService = jwtService;
         this.authenticationService = authenticationService;
+    }
+
+
+    //POST MAPPING SAVE IMAGE //ENDPOINT QUE RECIBA LA IMAG Y SE GUARDE EN CLOUDINARY -> saveImage
+    @PostMapping("/saveImage")
+    public ResponseEntity<?> saveImage(@RequestParam("file") MultipartFile file, @RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            String token = authorizationHeader.replace("Bearer ", "");
+
+            // Extract username from the token
+            String username = jwtService.extractUsername(token);
+
+            User user = userRepository.findByEmail(username)
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap()); //getBytes para http
+
+            Image image = new Image(); // Save in database
+            image.setName((String) uploadResult.get("original_filename"));
+            image.setUrl((String) uploadResult.get("url"));
+            image.setUser(user);
+            imageRepository.save(image);
+
+            return ResponseEntity.ok("Imágen guardada exitosamente");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al guardar imagen : " + e.getMessage());
+        }
     }
 
     @PostMapping("/login")

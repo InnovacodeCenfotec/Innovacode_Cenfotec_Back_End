@@ -28,7 +28,6 @@ public class JwtService {
     @Value("${pixlr.api.key}")
     private String pixlrApiKey;
 
-    
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -52,16 +51,16 @@ public class JwtService {
     }
 
 
-    public String generateImageToken(Image tokenData) {
+    public String generateImageToken(Image imageData) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("mode", tokenData.getMode());
-        claims.put("openUrl", tokenData.getUrl());
-        claims.put("saveURL", tokenData.getSaveUrl());
         claims.put("sub", pixlrApiKey);
+        claims.put("mode", imageData.getMode());
+        claims.put("openUrl", imageData.getUrl());
+        claims.put("saveURL", imageData.getSaveUrl());
 
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(tokenData.getSub())
+                .setSubject(imageData.getSub())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)

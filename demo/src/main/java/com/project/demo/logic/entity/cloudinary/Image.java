@@ -2,10 +2,14 @@ package com.project.demo.logic.entity.cloudinary;
 
 import com.project.demo.logic.entity.user.User;
 import jakarta.persistence.*;
+import org.springframework.beans.factory.annotation.Value;
 
 @Table(name = "images")
 @Entity
 public class Image {
+    @Value("${ngrok.base_url}")
+    private String ngrokBaseUrl;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,7 +34,7 @@ public class Image {
     }
 
     public void setSaveUrl(String saveUrl) {
-        this.saveUrl = saveUrl;
+        this.saveUrl = ngrokBaseUrl + "auth/saveImage";
     }
 
     public String getSub() {
