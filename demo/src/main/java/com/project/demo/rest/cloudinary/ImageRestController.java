@@ -5,6 +5,7 @@ import com.project.demo.logic.entity.cloudinary.ImageRepository;
 import com.project.demo.logic.entity.cloudinary.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,6 +41,12 @@ public class ImageRestController {
         } else {
             return ResponseEntity.status(500).body(result);
         }
+    }
+
+    @PostMapping
+    @PreAuthorize("hasAnyRole('USER', 'SUPER_ADMIN')")
+    public Image addImagen(@RequestBody Image imagen) {
+        return imageRepository.save(imagen);
     }
 
 
