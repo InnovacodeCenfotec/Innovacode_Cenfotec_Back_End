@@ -2,6 +2,7 @@ package com.project.demo.rest.user;
 
 import com.project.demo.logic.entity.http.GlobalResponseHandler;
 import com.project.demo.logic.entity.http.Meta;
+import com.project.demo.logic.entity.rol.Role;
 import com.project.demo.logic.entity.user.User;
 import com.project.demo.logic.entity.user.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -74,12 +75,17 @@ public class UserRestController {
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
     public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody User user, HttpServletRequest request) {
         Optional<User> foundUser = userRepository.findById(userId);
+        Role userRole = foundUser.get().getRole();
         if(foundUser.isPresent()) {
             user.setPassword(passwordEncoder.encode(user.getPassword()));
+
             foundUser.get().setName(user.getName());
             foundUser.get().setLastname(user.getLastname());
             foundUser.get().setEmail(user.getEmail());
-            foundUser.get().setRole(user.getRole());
+            //foundUser.get().setRole(user.getRole());
+            foundUser.get().setEnabled(user.isEnabled());
+            foundUser.get().setRole(userRole);
+
             userRepository.save(foundUser.get());
             return new GlobalResponseHandler().handleResponse("User updated successfully",
                     user, HttpStatus.OK, request);
@@ -109,6 +115,21 @@ public class UserRestController {
     public User authenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (User) authentication.getPrincipal();
+    }
+    @PatchMapping("/{userId}/disable")
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
+    public ResponseEntity<?> disableUser(@PathVariable Long userId, HttpServletRequest request) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setEnabled(false); // Disable the user
+            userRepository.save(user); // Save changes
+            return new GlobalResponseHandler().handleResponse("User disabled successfully",
+                    user, HttpStatus.OK, request);
+        } else {
+            return new GlobalResponseHandler().handleResponse("User id " + userId + " not found",
+                    HttpStatus.NOT_FOUND, request);
+        }
     }
 
 }
