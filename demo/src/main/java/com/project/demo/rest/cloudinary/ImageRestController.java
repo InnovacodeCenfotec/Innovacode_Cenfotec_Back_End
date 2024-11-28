@@ -60,7 +60,23 @@ public class ImageRestController {
         }
     }
 
+    @PostMapping
+    @PreAuthorize("hasAnyRole('USER', 'SUPER_ADMIN')")
+    public Image addImagen(@RequestParam("file") MultipartFile file, @RequestParam("userId") Long userId) throws IOException {
 
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
+        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+        String imageUrl = (String) uploadResult.get("url");
+        String imageName = (String) uploadResult.get("public_id");
+
+
+        Image imagen = new Image();
+        imagen.setUrl(imageUrl);
+        imagen.setName(imageName);
+        imagen.setUser(user);
+        return imageRepository.save(imagen);
+    }
 
 
 }
