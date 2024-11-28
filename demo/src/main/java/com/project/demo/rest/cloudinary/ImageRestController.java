@@ -1,12 +1,22 @@
 package com.project.demo.rest.cloudinary;
 
+
 import com.project.demo.logic.entity.cloudinary.Image;
 import com.project.demo.logic.entity.cloudinary.ImageRepository;
+import com.project.demo.logic.entity.user.User;
+import com.project.demo.logic.entity.user.UserRepository;
 import com.project.demo.logic.entity.cloudinary.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import com.cloudinary.*;
+import com.cloudinary.utils.ObjectUtils;
+
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.Map;
 
 import java.util.List;
 
@@ -14,8 +24,15 @@ import java.util.List;
 @RequestMapping("/cloudinary")
 public class ImageRestController {
 
+    private final Cloudinary cloudinary;
+    @Autowired
+    public ImageRestController(Cloudinary cloudinary) { this.cloudinary = cloudinary; }
+
     @Autowired
     ImageRepository imageRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     @Autowired
     private ImageService imageService;
@@ -43,11 +60,7 @@ public class ImageRestController {
         }
     }
 
-    @PostMapping
-    @PreAuthorize("hasAnyRole('USER', 'SUPER_ADMIN')")
-    public Image addImagen(@RequestBody Image imagen) {
-        return imageRepository.save(imagen);
-    }
+
 
 
 }

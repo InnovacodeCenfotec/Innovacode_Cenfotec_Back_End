@@ -54,7 +54,7 @@ public class JwtService {
 
     public String generateImageToken(Image tokenData) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("mode", tokenData.getMode());
+        claims.put("mode", "http");
         claims.put("openUrl", tokenData.getUrl());
         claims.put("saveURL", tokenData.getSaveUrl());
         claims.put("sub", pixlrApiKey);

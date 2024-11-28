@@ -30,7 +30,7 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 	implementation 'com.sun.mail:jakarta.mail:2.0.1' //email service
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
-	// https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http44
+	implementation 'io.github.cdimascio:dotenv-java:2.2.4'
 	implementation 'com.cloudinary:cloudinary-http44:1.39.0'
 
 }

@@ -1,8 +1,13 @@
 package com.project.demo.rest.auth;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.project.demo.logic.entity.auth.AuthenticationService;
 import com.project.demo.logic.entity.auth.JwtService;
 import com.project.demo.logic.entity.auth.OAuth2AuthenticationService;
+import com.project.demo.logic.entity.cloudinary.Image;
+import com.project.demo.logic.entity.cloudinary.ImageRepository;
+import com.project.demo.logic.entity.cloudinary.ImageService;
 import com.project.demo.logic.entity.emailSender.EmailServiceJava;
 import com.project.demo.logic.entity.resetPassword.ResetPasswordRequest;
 import com.project.demo.logic.entity.rol.Role;
@@ -15,10 +20,18 @@ import com.project.demo.logic.entity.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import com.project.demo.logic.entity.cloudinary.Image;
+import com.project.demo.logic.entity.cloudinary.ImageRepository;
+import com.cloudinary.*;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 
 @RequestMapping("/auth")
@@ -44,13 +57,22 @@ public class AuthRestController {
     @Autowired
     private OAuth2AuthenticationService oauth2AuthenticationService;
 
+    private final Cloudinary cloudinary;
+
+    @Autowired
+    ImageRepository imageRepository;
+
+    @Autowired
+    private ImageService imageService;
+
 
     private final AuthenticationService authenticationService;
     private final JwtService jwtService;
 
-    public AuthRestController(JwtService jwtService, AuthenticationService authenticationService) {
+    public AuthRestController(JwtService jwtService, AuthenticationService authenticationService, Cloudinary cloudinary ) {
         this.jwtService = jwtService;
         this.authenticationService = authenticationService;
+        this.cloudinary = cloudinary;
     }
 
     @PostMapping("/login")
@@ -108,6 +130,23 @@ public class AuthRestController {
         return ResponseEntity.ok("Password reset successfully");
     }
 
+    @PostMapping("/saveImage")
+    @PreAuthorize("hasAnyRole('USER', 'SUPER_ADMIN')")
+    public Image addImagen(@RequestParam("file") MultipartFile file, @RequestParam("userId") Long userId) throws IOException {
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
+        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+        String imageUrl = (String) uploadResult.get("url");
+        String imageName = (String) uploadResult.get("public_id");
+
+
+        Image imagen = new Image();
+        imagen.setUrl(imageUrl);
+        imagen.setName(imageName);
+        imagen.setUser(user);
+        return imageRepository.save(imagen);
+    }
 //    @PostMapping("/googleLogin/{idToken}")
 //    public ResponseEntity<LoginResponse> login(@PathVariable String idToken) {
 //        try {

@@ -16,9 +16,17 @@ public class Image {
 
     @Column(name = "name_image")
     private String name;
-
     @Column(name = "url_image")
     private String url;
+    @Column(name = "mode_image")
+    private String mode;
+    @Column(name = "saveurl_image")
+    private String saveUrl;
+    @Column(name = "sub_image")
+    private String sub;
+    @CreationTimestamp
+    @Column(updatable = false, name = "create_date")
+    private Date createDate;
 
     public String getMode() {
         return mode;
@@ -45,12 +53,6 @@ public class Image {
         this.sub = sub;
     }
 
-    private String mode;
-    private String saveUrl;
-    private String sub;
-    @CreationTimestamp
-    @Column(updatable = false, name = "create_date")
-    private Date createDate;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
