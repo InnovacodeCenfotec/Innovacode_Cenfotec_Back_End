@@ -20,16 +20,10 @@ import com.project.demo.logic.entity.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import com.project.demo.logic.entity.cloudinary.Image;
-import com.project.demo.logic.entity.cloudinary.ImageRepository;
-import com.cloudinary.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
@@ -131,7 +125,6 @@ public class AuthRestController {
     }
 
     @PostMapping("/saveImage")
-    @PreAuthorize("hasAnyRole('USER', 'SUPER_ADMIN')")
     public Image addImagen(@RequestParam("file") MultipartFile file, @RequestParam("userId") Long userId) throws IOException {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
@@ -147,6 +140,15 @@ public class AuthRestController {
         imagen.setUser(user);
         return imageRepository.save(imagen);
     }
+
+    @GetMapping("/imagetoken/{id}")
+    public String getImageToken(@PathVariable Long id){
+        Optional<Image> image = imageRepository.findById(id);
+        String jwtImageToken = jwtService.generateImageToken(image.orElse(null));
+        return jwtImageToken;
+    }
+
+
 //    @PostMapping("/googleLogin/{idToken}")
 //    public ResponseEntity<LoginResponse> login(@PathVariable String idToken) {
 //        try {

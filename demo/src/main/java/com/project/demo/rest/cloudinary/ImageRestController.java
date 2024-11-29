@@ -47,6 +47,11 @@ public class ImageRestController {
         return imageRepository.findAll();
     }
 
+    @GetMapping("image/{id}")
+    public List<Image> getImage(@PathVariable Long id){
+        return imageRepository.findAll();
+    }
+
     @DeleteMapping("{id}")
     public ResponseEntity<String> deleteImage(@PathVariable Long id) {
         String result = imageService.deleteImage(id);
@@ -69,12 +74,11 @@ public class ImageRestController {
         Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
         String imageUrl = (String) uploadResult.get("url");
         String imageName = (String) uploadResult.get("public_id");
-
-
         Image imagen = new Image();
         imagen.setUrl(imageUrl);
         imagen.setName(imageName);
         imagen.setUser(user);
+        imagen.setSaveUrl("ngrok.url/"+"auth/saveImage/"+user);
         return imageRepository.save(imagen);
     }
 
