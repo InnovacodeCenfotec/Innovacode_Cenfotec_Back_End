@@ -75,20 +75,24 @@ public class UserRestController {
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
     public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody User user, HttpServletRequest request) {
         Optional<User> foundUser = userRepository.findById(userId);
-        Role userRole = foundUser.get().getRole();
+        //Role userRole = foundUser.get().getRole();
         if(foundUser.isPresent()) {
-            user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+            if (!user.getPassword().isEmpty()) {
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
+
 
             foundUser.get().setName(user.getName());
             foundUser.get().setLastname(user.getLastname());
             foundUser.get().setEmail(user.getEmail());
             //foundUser.get().setRole(user.getRole());
             foundUser.get().setEnabled(user.isEnabled());
-            foundUser.get().setRole(userRole);
+            //foundUser.get().setRole(userRole);
 
-            userRepository.save(foundUser.get());
+            User updatedUser = userRepository.save(foundUser.get());
             return new GlobalResponseHandler().handleResponse("User updated successfully",
-                    user, HttpStatus.OK, request);
+                    updatedUser, HttpStatus.OK, request);
         } else {
             return new GlobalResponseHandler().handleResponse("User id " + userId + " not found"  ,
                     HttpStatus.NOT_FOUND, request);
