@@ -13,17 +13,17 @@ public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @Column(name = "sub_image")
+    private String sub = "672fb34c79530704722e3056";
     @Column(name = "name_image")
     private String name;
-    @Column(name = "url_image")
-    private String url;
     @Column(name = "mode_image")
     private String mode;
+    @Column(name = "url_image")
+    private String url;
     @Column(name = "saveurl_image")
     private String saveUrl;
-    @Column(name = "sub_image")
-    private String sub;
+
     @CreationTimestamp
     @Column(updatable = false, name = "create_date")
     private Date createDate;

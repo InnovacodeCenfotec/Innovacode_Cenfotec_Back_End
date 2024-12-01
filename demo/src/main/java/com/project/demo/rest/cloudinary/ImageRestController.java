@@ -1,6 +1,7 @@
 package com.project.demo.rest.cloudinary;
 
 
+import com.project.demo.logic.entity.auth.JwtService;
 import com.project.demo.logic.entity.cloudinary.Image;
 import com.project.demo.logic.entity.cloudinary.ImageRepository;
 import com.project.demo.logic.entity.user.User;
@@ -12,13 +13,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import com.cloudinary.*;
 import com.cloudinary.utils.ObjectUtils;
-
+import com.project.demo.logic.entity.auth.JwtService;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Map;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/cloudinary")
@@ -26,7 +28,9 @@ public class ImageRestController {
 
     private final Cloudinary cloudinary;
     @Autowired
-    public ImageRestController(Cloudinary cloudinary) { this.cloudinary = cloudinary; }
+    public ImageRestController(JwtService jwtService, Cloudinary cloudinary) {
+
+        this.cloudinary = cloudinary; }
 
     @Autowired
     ImageRepository imageRepository;
@@ -81,6 +85,7 @@ public class ImageRestController {
         imagen.setSaveUrl("ngrok.url/"+"auth/saveImage/"+user);
         return imageRepository.save(imagen);
     }
+
 
 
 }
