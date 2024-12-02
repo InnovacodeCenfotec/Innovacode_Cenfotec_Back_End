@@ -24,6 +24,7 @@ import java.util.Base64;
 public class JwtService {
 
     private final String clientSecret = "de2a79fc86384b9ca47c0eec5698d34b";
+    private String saveUrl = "ngrok.com/auth/saveImage/";
 
     @Value("${security.jwt.secret-key}")
     private String secretKey;
@@ -36,6 +37,7 @@ public class JwtService {
 
     @Value("de2a79fc86384b9ca47c0eec5698d34b")
     private String pixlrApiSecret;
+
 
     
 
@@ -66,12 +68,15 @@ public class JwtService {
     }
 
     public String generateImageToken(Image tokenData) {
+
+
+
         Map<String, Object> claims = new HashMap<>();
         claims.put("sub", "672fb34c79530704722e3056");
         claims.put("name", "test");
         claims.put("mode", "http");
         claims.put("openUrl", tokenData.getUrl());
-        claims.put("saveUrl", "test.com");
+        claims.put("saveUrl", tokenData.getSaveUrl());
 
 
 

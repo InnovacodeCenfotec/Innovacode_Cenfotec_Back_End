@@ -124,20 +124,19 @@ public class AuthRestController {
         return ResponseEntity.ok("Password reset successfully");
     }
 
-    @PostMapping("/saveImage")
-    public Image addImagen(@RequestParam("file") MultipartFile file, @RequestParam("userId") Long userId) throws IOException {
+    @PostMapping("/saveImage/{userId}")
+    public Image addImagen(@RequestParam("file") MultipartFile file, @PathVariable Long userId) throws IOException {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
         Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
         String imageUrl = (String) uploadResult.get("url");
         String imageName = (String) uploadResult.get("public_id");
-
-
         Image imagen = new Image();
         imagen.setUrl(imageUrl);
         imagen.setName(imageName);
         imagen.setUser(user);
+        imagen.setSaveUrl("https://71c3-2800-860-7193-2e2-14c4-1e5c-dc72-4428.ngrok-free.app/"+"auth/saveImage/"+userId);
         return imageRepository.save(imagen);
     }
 
