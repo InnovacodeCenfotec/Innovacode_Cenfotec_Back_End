@@ -3,6 +3,8 @@ package com.project.demo.rest.user;
 import com.project.demo.logic.entity.http.GlobalResponseHandler;
 import com.project.demo.logic.entity.http.Meta;
 import com.project.demo.logic.entity.rol.Role;
+import com.project.demo.logic.entity.rol.RoleEnum;
+import com.project.demo.logic.entity.rol.RoleRepository;
 import com.project.demo.logic.entity.user.User;
 import com.project.demo.logic.entity.user.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +28,8 @@ import java.util.Optional;
 public class UserRestController {
     @Autowired
     private UserRepository userRepository;
-
+    @Autowired
+    private RoleRepository roleRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -65,9 +68,12 @@ public class UserRestController {
     @PostMapping
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
     public ResponseEntity<?> addUser(@RequestBody User user, HttpServletRequest request) {
+        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(optionalRole.get());
         userRepository.save(user);
-        return new GlobalResponseHandler().handleResponse("User updated successfully",
+        return new GlobalResponseHandler().handleResponse("User created successfully",
                 user, HttpStatus.OK, request);
     }
 
