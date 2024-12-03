@@ -31,7 +31,6 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/cloudinary/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement()
