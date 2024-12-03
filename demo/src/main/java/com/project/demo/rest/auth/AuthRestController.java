@@ -23,6 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 
 import java.io.IOException;
 import java.util.Map;
@@ -124,12 +126,13 @@ public class AuthRestController {
         return ResponseEntity.ok("Password reset successfully");
     }
 
-    @PostMapping("/saveImage/{userId}")
-    public Image addImagen(@RequestParam("file") MultipartFile file, @PathVariable Long userId) throws IOException {
 
+
+    @PostMapping("/saveImage/{userId}")
+    public ResponseEntity<String> addImagen(@RequestParam("file") MultipartFile file, @PathVariable Long userId) throws IOException {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
-        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+        Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
         String imageUrl = (String) uploadResult.get("url");
         String imageName = (String) uploadResult.get("public_id");
         Image imagen = new Image();
@@ -137,8 +140,17 @@ public class AuthRestController {
         imagen.setName(imageName);
         imagen.setUser(user);
         imagen.setSaveUrl("https://71c3-2800-860-7193-2e2-14c4-1e5c-dc72-4428.ngrok-free.app/"+"auth/saveImage/"+userId);
-        return imageRepository.save(imagen);
+        imageRepository.save(imagen);
+
+        // HTML con JavaScript para redirigir la página principal
+        String redirectScript = "<html><head><script type=\"text/javascript\">window.top.location.href = 'http://localhost:4200/app/galery';</script></head><body></body></html>";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_HTML);
+
+        return new ResponseEntity<>(redirectScript, headers, HttpStatus.OK);
     }
+
 
     @GetMapping("/imagetoken/{id}")
     public String getImageToken(@PathVariable Long id){
