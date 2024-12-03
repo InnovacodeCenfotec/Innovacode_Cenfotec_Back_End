@@ -142,7 +142,7 @@ public class AuthRestController {
         imagen.setSaveUrl("https://71c3-2800-860-7193-2e2-14c4-1e5c-dc72-4428.ngrok-free.app/"+"auth/saveImage/"+userId);
         imageRepository.save(imagen);
 
-        // HTML con JavaScript para redirigir la página principal
+     
         String redirectScript = "<html><head><script type=\"text/javascript\">window.top.location.href = 'http://localhost:4200/app/galery';</script></head><body></body></html>";
 
         HttpHeaders headers = new HttpHeaders();
