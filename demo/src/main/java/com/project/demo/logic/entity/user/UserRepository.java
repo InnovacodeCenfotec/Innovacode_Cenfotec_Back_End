@@ -13,6 +13,9 @@ public interface UserRepository extends JpaRepository<User, Long>  {
     @Query("SELECT u FROM User u WHERE u.name = ?1")
     Optional<User> findByName(String name);
 
+    @Query("SELECT COUNT(u) > 0 FROM User u WHERE u.role.name = 'SUPER_ADMIN'")
+    boolean existsSuperAdmin();
+
     Optional<User> findByLastname(String lastname);
 
     Optional<User> findByEmail(String email);

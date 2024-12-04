@@ -64,9 +64,17 @@ public class UserRestController {
     @PostMapping
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
     public ResponseEntity<?> addUser(@RequestBody User user, HttpServletRequest request) {
+        if ("SUPER_ADMIN".equals(user.getRole().getName())) {
+            if (userRepository.existsSuperAdmin()) {
+                return new GlobalResponseHandler().handleResponse(
+                        "No se puede crear otro Super Administrador. Ya existe uno activo.",
+                        HttpStatus.BAD_REQUEST, request
+                );
+            }
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-        return new GlobalResponseHandler().handleResponse("User updated successfully",
+        return new GlobalResponseHandler().handleResponse("User creado exitosamente",
                 user, HttpStatus.OK, request);
     }
 
@@ -80,6 +88,12 @@ public class UserRestController {
             foundUser.get().setLastname(user.getLastname());
             foundUser.get().setEmail(user.getEmail());
             foundUser.get().setRole(user.getRole());
+            foundUser.get().setPhoneNumber(user.getPhoneNumber());
+            foundUser.get().setAddress(user.getAddress());
+            foundUser.get().setBio(user.getBio());
+            if (user.getPhotoUrl() != null && !user.getPhotoUrl().isEmpty()) {
+                foundUser.get().setPhotoUrl(user.getPhotoUrl());
+            }
             userRepository.save(foundUser.get());
             return new GlobalResponseHandler().handleResponse("User updated successfully",
                     user, HttpStatus.OK, request);
