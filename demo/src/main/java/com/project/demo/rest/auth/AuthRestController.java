@@ -1,8 +1,8 @@
 package com.project.demo.rest.auth;
 
 import com.project.demo.logic.entity.auth.AuthenticationService;
+import com.project.demo.logic.entity.auth.GoogleTokenService;
 import com.project.demo.logic.entity.auth.JwtService;
-import com.project.demo.logic.entity.auth.OAuth2AuthenticationService;
 import com.project.demo.logic.entity.emailSender.EmailServiceJava;
 import com.project.demo.logic.entity.http.GlobalResponseHandler;
 import com.project.demo.logic.entity.resetPassword.ResetPasswordRequest;
@@ -43,7 +43,7 @@ public class AuthRestController {
     private EmailServiceJava emailService;
 
     @Autowired
-    private OAuth2AuthenticationService oauth2AuthenticationService;
+    private GoogleTokenService googleTokenService;
 
     private final AuthenticationService authenticationService;
     private final JwtService jwtService;
@@ -142,42 +142,42 @@ public class AuthRestController {
         return ResponseEntity.ok("Password reset successfully");
     }
 
-    // @PostMapping("/googleLogin/{idToken}")
-    // public ResponseEntity<LoginResponse> login(@PathVariable String idToken) {
-    // try {
-    // OAuth2User oAuth2User = oauth2AuthenticationService.verifyToken(idToken);
-    //
-    // if (oAuth2User == null) {
-    // return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    // }
-    //
-    // // Extraer el email del usuario autenticado
-    // String email = oAuth2User.getAttribute("email");
-    // Optional<User> userOptional = userRepository.findByEmail(email);
-    //
-    // User user;
-    // if (userOptional.isPresent()) {
-    // user = userOptional.get();
-    // } else {
-    // // Registrar el usuario si no existe
-    // user = new User();
-    // user.setEmail(email);
-    // user.setRole(roleRepository.findByName(RoleEnum.USER).orElseThrow());
-    // user = userRepository.save(user);
-    // }
-    //
-    // // Generar el JWT para el usuario
-    // String jwtToken = jwtService.generateToken(user);
-    //
-    // // Preparar la respuesta
-    // LoginResponse loginResponse = new LoginResponse();
-    // loginResponse.setToken(jwtToken);
-    // loginResponse.setExpiresIn(jwtService.getExpirationTime());
-    // loginResponse.setAuthUser(user);
-    //
-    // return ResponseEntity.ok(loginResponse);
-    // } catch (Exception e) {
-    // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-    // }
-    // }
+     @PostMapping("/googleLogin/{idToken}")
+     public ResponseEntity<LoginResponse> login(@PathVariable String idToken) {
+     try {
+     OAuth2User oAuth2User = googleTokenService.verifyToken(idToken);
+
+     if (oAuth2User == null) {
+     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+     }
+
+     // Extraer el email del usuario autenticado
+     String email = oAuth2User.getAttribute("email");
+     Optional<User> userOptional = userRepository.findByEmail(email);
+
+     User user;
+     if (userOptional.isPresent()) {
+     user = userOptional.get();
+     } else {
+     // Registrar el usuario si no existe
+     user = new User();
+     user.setEmail(email);
+     user.setRole(roleRepository.findByName(RoleEnum.USER).orElseThrow());
+     user = userRepository.save(user);
+     }
+
+     // Generar el JWT para el usuario
+     String jwtToken = jwtService.generateToken(user);
+
+     // Preparar la respuesta
+     LoginResponse loginResponse = new LoginResponse();
+     loginResponse.setToken(jwtToken);
+     loginResponse.setExpiresIn(jwtService.getExpirationTime());
+     loginResponse.setAuthUser(user);
+
+     return ResponseEntity.ok(loginResponse);
+     } catch (Exception e) {
+     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+     }
+     }
 }
