@@ -13,16 +13,46 @@ public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @Column(name = "sub_image")
+    private String sub = "672fb34c79530704722e3056";
     @Column(name = "name_image")
     private String name;
-
+    @Column(name = "mode_image")
+    private String mode;
     @Column(name = "url_image")
     private String url;
+    @Column(name = "saveurl_image")
+    private String saveUrl;
 
     @CreationTimestamp
     @Column(updatable = false, name = "create_date")
     private Date createDate;
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+
+    public String getSaveUrl() {
+        return saveUrl;
+    }
+
+    public void setSaveUrl(String saveUrl) {
+        this.saveUrl = saveUrl;
+    }
+
+    public String getSub() {
+        return sub;
+    }
+
+    public void setSub(String sub) {
+        this.sub = sub;
+    }
+
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
