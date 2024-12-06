@@ -50,4 +50,19 @@ public class ImageService {
         throw new IllegalArgumentException("Invalid Cloudinary URL format");
     }
 
+    public String likeImage(Long id) {
+        Optional<Image> imageOpt = imageRepository.findById(id);
+
+        if (imageOpt.isPresent()) {
+            Image image = imageOpt.get();
+
+            image.incrementLikes();
+            imageRepository.save(image);
+
+            return "Image liked successfully. Total likes: " + image.getLikesCount();
+        } else {
+            return "Image not found.";
+        }
+    }
+
 }

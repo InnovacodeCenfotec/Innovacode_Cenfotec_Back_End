@@ -27,6 +27,11 @@ public class Image {
     @CreationTimestamp
     @Column(updatable = false, name = "create_date")
     private Date createDate;
+    @Column(name = "likes_count", nullable = false)
+    private int likesCount = 0;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    private User user;
 
     public String getMode() {
         return mode;
@@ -35,7 +40,6 @@ public class Image {
     public void setMode(String mode) {
         this.mode = mode;
     }
-
 
     public String getSaveUrl() {
         return saveUrl;
@@ -52,11 +56,6 @@ public class Image {
     public void setSub(String sub) {
         this.sub = sub;
     }
-
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
-    private User user;
 
     public Long getId() {
         return id;
@@ -96,5 +95,17 @@ public class Image {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public int getLikesCount() {
+        return likesCount;
+    }
+
+    public void setLikesCount(int likesCount) {
+        this.likesCount = likesCount;
+    }
+
+    public void incrementLikes() {
+        this.likesCount++;
     }
 }

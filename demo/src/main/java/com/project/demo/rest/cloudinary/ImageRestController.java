@@ -82,5 +82,17 @@ public class ImageRestController {
         return imageRepository.save(imagen);
     }
 
+    @PostMapping("{id}")
+    @PreAuthorize("hasAnyRole('USER', 'SUPER_ADMIN')")
+    public ResponseEntity<String> likeImage(@PathVariable Long id) {
+        String response = imageService.likeImage(id);
 
+        if (response.contains("liked successfully")) {
+            return ResponseEntity.ok(response);
+        } else if (response.contains("not found")) {
+            return ResponseEntity.status(404).body(response);
+        } else {
+            return ResponseEntity.status(500).body(response);
+        }
+    }
 }
