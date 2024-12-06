@@ -1,6 +1,7 @@
 package com.project.demo.rest.cloudinary;
 
 
+import com.project.demo.logic.entity.auth.JwtService;
 import com.project.demo.logic.entity.cloudinary.Image;
 import com.project.demo.logic.entity.cloudinary.ImageRepository;
 import com.project.demo.logic.entity.user.User;
@@ -13,7 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import com.cloudinary.*;
 import com.cloudinary.utils.ObjectUtils;
-
+import com.project.demo.logic.entity.auth.JwtService;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ import java.nio.file.attribute.UserPrincipal;
 import java.util.Map;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/cloudinary")
@@ -28,7 +30,9 @@ public class ImageRestController {
 
     private final Cloudinary cloudinary;
     @Autowired
-    public ImageRestController(Cloudinary cloudinary) { this.cloudinary = cloudinary; }
+    public ImageRestController(JwtService jwtService, Cloudinary cloudinary) {
+
+        this.cloudinary = cloudinary; }
 
     @Autowired
     ImageRepository imageRepository;
@@ -67,20 +71,22 @@ public class ImageRestController {
         }
     }
 
+
     @PostMapping
     @PreAuthorize("hasAnyRole('USER', 'SUPER_ADMIN')")
-    public Image addImagen(@RequestParam("file") MultipartFile file, @RequestParam("userId") Long userId) throws IOException {
+    public Image addImagen(@RequestParam("file") MultipartFile file,
+                           @RequestParam("userId") Long userId,
+                           @RequestParam("imageName") String imageName) throws IOException {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
         Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
         String imageUrl = (String) uploadResult.get("url");
-        String imageName = (String) uploadResult.get("public_id");
         Image imagen = new Image();
         imagen.setUrl(imageUrl);
         imagen.setName(imageName);
         imagen.setUser(user);
-        imagen.setSaveUrl("ngrok.url/"+"auth/saveImage/"+user);
+        imagen.setSaveUrl("https://71c3-2800-860-7193-2e2-14c4-1e5c-dc72-4428.ngrok-free.app/"+"auth/saveImage/"+userId);
         return imageRepository.save(imagen);
     }
 
