@@ -111,7 +111,6 @@ public class UserRestController {
         }
     }
 
-
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
     public ResponseEntity<?> deleteUser(@PathVariable Long userId, HttpServletRequest request) {
