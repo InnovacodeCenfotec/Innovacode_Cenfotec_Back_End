@@ -170,7 +170,7 @@ public class AuthRestController {
         imagen.setName(imageName);
         imagen.setUser(user);
         imagen.setSaveUrl(
-                "https://da0c-2800-860-7193-2e2-ad48-a1fa-d7a-a142.ngrok-free.app/" + "auth/saveImage/" + userId);
+                "https://520a-2800-860-7193-2e2-ad48-a1fa-d7a-a142.ngrok-free.app/" + "auth/saveImage/" + userId);
         imageRepository.save(imagen);
 
         String redirectScript = "<html><head><script type=\"text/javascript\">window.top.location.href = 'http://localhost:4200/app/galery';</script></head><body></body></html>";
@@ -181,13 +181,13 @@ public class AuthRestController {
         return new ResponseEntity<>(redirectScript, headers, HttpStatus.OK);
     }
 
-//    @GetMapping("/imagetoken/{id}")
-//    public String getImageToken(@PathVariable Long id) {
-//        Optional<Image> image = imageRepository.findById(id);
-//        String jwtImageToken = jwtService.generateImageToken(image.orElse(null));
-//        return jwtImageToken;
-//    }
-//
+    @GetMapping("/imagetoken/{id}")
+    public String getImageToken(@PathVariable Long id) {
+       Optional<Image> image = imageRepository.findById(id);
+       String jwtImageToken = jwtService.generateImageToken(image.orElse(null));
+       return jwtImageToken;
+ }
+
 //    @PostMapping("/googleLogin/{idToken}")
 //    public ResponseEntity<LoginResponse> login(@PathVariable String idToken) {
 //        try {
