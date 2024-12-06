@@ -6,8 +6,8 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.util.Date;
 
-@Table(name = "likes")
 @Entity
+@Table(name = "likes")
 public class Likes {
 
     @Id

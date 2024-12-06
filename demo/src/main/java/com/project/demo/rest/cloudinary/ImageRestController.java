@@ -9,6 +9,7 @@ import com.project.demo.logic.entity.cloudinary.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import com.cloudinary.*;
 import com.cloudinary.utils.ObjectUtils;
@@ -16,6 +17,7 @@ import com.cloudinary.utils.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.attribute.UserPrincipal;
 import java.util.Map;
 
 import java.util.List;
@@ -85,14 +87,18 @@ public class ImageRestController {
     @PostMapping("{id}")
     @PreAuthorize("hasAnyRole('USER', 'SUPER_ADMIN')")
     public ResponseEntity<String> likeImage(@PathVariable Long id) {
+        // Llamamos al método del servicio que maneja el "like"
         String response = imageService.likeImage(id);
 
+        // Determinamos la respuesta según el mensaje que se obtiene del servicio
         if (response.contains("liked successfully")) {
-            return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);  // Retorna OK si se pudo dar like
         } else if (response.contains("not found")) {
-            return ResponseEntity.status(404).body(response);
+            return ResponseEntity.status(404).body(response);  // Imagen no encontrada
+        } else if (response.contains("already liked")) {
+            return ResponseEntity.status(400).body(response);  // Ya se ha dado like
         } else {
-            return ResponseEntity.status(500).body(response);
+            return ResponseEntity.status(500).body(response);  // Error general
         }
     }
 

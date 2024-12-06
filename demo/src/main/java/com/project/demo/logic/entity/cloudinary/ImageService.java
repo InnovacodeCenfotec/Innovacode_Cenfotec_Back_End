@@ -2,7 +2,11 @@ package com.project.demo.logic.entity.cloudinary;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.project.demo.logic.entity.user.User;
+import com.project.demo.logic.entity.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,6 +18,12 @@ public class ImageService {
 
     @Autowired
     private ImageRepository imageRepository;
+
+    @Autowired
+    private LikeRepository likeRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public String deleteImage(Long id) {
         Optional<Image> imageOpt = imageRepository.findById(id);
@@ -56,13 +66,50 @@ public class ImageService {
         if (imageOpt.isPresent()) {
             Image image = imageOpt.get();
 
+            // Obtener el usuario logueado
+            Long userId = getLoggedInUserId();
+            Optional<User> userOpt = userRepository.findById(userId);
+
+            if (!userOpt.isPresent()) {
+                return "User not found.";
+            }
+
+            User user = userOpt.get();
+
+            // Verificar si el usuario ya le dio like a la imagen
+            if (likeRepository.existsByUserIdAndImageId(userId, id)) {
+                return "You have already liked this image.";
+            }
+
+            // Incrementar los likes de la imagen
             image.incrementLikes();
             imageRepository.save(image);
+
+            // Registrar el like en el repositorio
+            Likes like = new Likes(user, image);
+            likeRepository.save(like);
 
             return "Image liked successfully. Total likes: " + image.getLikesCount();
         } else {
             return "Image not found.";
         }
+    }
+
+
+    // Método para obtener el ID del usuario logueado
+    private Long getLoggedInUserId() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof UserDetails) {
+            String username = ((UserDetails) principal).getUsername();  // El username es el correo electrónico
+
+            // Buscar el usuario en la base de datos usando el correo electrónico
+            Optional<User> userOpt = userRepository.findByEmail(username);
+
+            if (userOpt.isPresent()) {
+                return userOpt.get().getId();  // Devuelve el ID del usuario
+            }
+        }
+        return null;  // En caso de que no se encuentre al usuario logueado
     }
 
     public int getLikesById(Long id) {
