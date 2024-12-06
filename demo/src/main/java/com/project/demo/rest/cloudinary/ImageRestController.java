@@ -91,14 +91,17 @@ public class ImageRestController {
         String response = imageService.likeImage(id);
 
         // Determinamos la respuesta según el mensaje que se obtiene del servicio
-        if (response.contains("liked successfully")) {
+        if ("Image liked successfully".equals(response)) {
             return ResponseEntity.ok(response);  // Retorna OK si se pudo dar like
-        } else if (response.contains("not found")) {
+        } else if ("Image not found".equals(response)) {
             return ResponseEntity.status(404).body(response);  // Imagen no encontrada
-        } else if (response.contains("already liked")) {
+        } else if ("You have already liked this image".equals(response)) {
             return ResponseEntity.status(400).body(response);  // Ya se ha dado like
+        } else if ("Like removed successfully".equals(response)) {
+            return ResponseEntity.ok(response);  // Retorna OK si se quitó el like
         } else {
-            return ResponseEntity.status(500).body(response);  // Error general
+            // Si se da algún otro error no esperado, se retorna un error general 500
+            return ResponseEntity.status(500).body("An unexpected error occurred: " + response);
         }
     }
 

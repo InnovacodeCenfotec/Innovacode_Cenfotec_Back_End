@@ -4,6 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.project.demo.logic.entity.user.User;
 import com.project.demo.logic.entity.user.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -60,6 +61,7 @@ public class ImageService {
         throw new IllegalArgumentException("Invalid Cloudinary URL format");
     }
 
+    @Transactional  // Asegura que las operaciones se realicen dentro de una transacción
     public String likeImage(Long id) {
         Optional<Image> imageOpt = imageRepository.findById(id);
 
@@ -78,10 +80,17 @@ public class ImageService {
 
             // Verificar si el usuario ya le dio like a la imagen
             if (likeRepository.existsByUserIdAndImageId(userId, id)) {
-                return "You have already liked this image.";
+                // Si ya le dio like, eliminar el like
+                likeRepository.deleteByUserIdAndImageId(userId, id);
+
+                // Reducir los likes de la imagen
+                image.decrementLikes();
+                imageRepository.save(image);
+
+                return "Like removed successfully. Total likes: " + image.getLikesCount();
             }
 
-            // Incrementar los likes de la imagen
+            // Si no ha dado like, dar like a la imagen
             image.incrementLikes();
             imageRepository.save(image);
 
@@ -94,7 +103,6 @@ public class ImageService {
             return "Image not found.";
         }
     }
-
 
     // Método para obtener el ID del usuario logueado
     private Long getLoggedInUserId() {

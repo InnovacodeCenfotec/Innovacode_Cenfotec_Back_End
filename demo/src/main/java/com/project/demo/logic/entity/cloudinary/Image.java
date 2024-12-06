@@ -108,4 +108,10 @@ public class Image {
     public void incrementLikes() {
         this.likesCount++;
     }
+
+    public void decrementLikes() {
+        if (this.likesCount > 0) {
+            this.likesCount--;
+        }
+    }
 }
