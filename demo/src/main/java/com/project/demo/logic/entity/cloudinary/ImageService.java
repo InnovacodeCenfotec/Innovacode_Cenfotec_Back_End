@@ -65,4 +65,14 @@ public class ImageService {
         }
     }
 
+    public int getLikesById(Long id) {
+        Optional<Image> imageOpt = imageRepository.findById(id);
+
+        if (imageOpt.isPresent()) {
+            Image image = imageOpt.get();
+            return image.getLikesCount();
+        } else {
+            throw new RuntimeException("Image not found");
+        }
+    }
 }

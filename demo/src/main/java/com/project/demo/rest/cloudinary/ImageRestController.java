@@ -95,4 +95,14 @@ public class ImageRestController {
             return ResponseEntity.status(500).body(response);
         }
     }
+
+    @GetMapping("{id}")
+    public ResponseEntity<String> getLikesById(@PathVariable Long id) {
+        try {
+            int likes = imageService.getLikesById(id);
+            return ResponseEntity.ok("Likes count: " + likes);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(404).body("Image not found.");
+        }
+    }
 }
