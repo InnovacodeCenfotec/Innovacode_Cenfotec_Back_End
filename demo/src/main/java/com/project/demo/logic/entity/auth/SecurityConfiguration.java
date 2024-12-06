@@ -34,16 +34,15 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/auth/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/media/**").permitAll() // Permitir acceso público a los archivos de medios
                         .anyRequest().authenticated()
                 )
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);  // JWT filter
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);  // Filtro JWT
 
         return http.build();
     }
-
-
 }

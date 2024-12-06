@@ -56,9 +56,6 @@ public class User implements UserDetails {
     @Column(name = "address")
     private String address;
 
-    @Column(name = "bio")
-    private String bio;
-
     // Constructors
     public User() {}
 
@@ -180,10 +177,5 @@ public class User implements UserDetails {
     }
     public void setAddress(String address) {
         this.address = address;
-    }
-    public String getBio() {
-        return bio;
-    } public void setBio(String bio) {
-        this.bio = bio;
     }
 }
