@@ -27,7 +27,7 @@ public class Image {
     @CreationTimestamp
     @Column(updatable = false, name = "create_date")
     private Date createDate;
-    @Column(name = "likes_count", nullable = false)
+    @Column(name = "likes_count")
     private int likesCount = 0;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
