@@ -69,11 +69,10 @@ public class UserRestController {
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
     public ResponseEntity<?> addUser(@RequestBody User user, HttpServletRequest request) {
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
-
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(optionalRole.get());
         userRepository.save(user);
-        return new GlobalResponseHandler().handleResponse("User created successfully",
+        return new GlobalResponseHandler().handleResponse("User creado exitosamente",
                 user, HttpStatus.OK, request);
     }
 
@@ -95,7 +94,14 @@ public class UserRestController {
             //foundUser.get().setRole(user.getRole());
             foundUser.get().setEnabled(user.isEnabled());
             //foundUser.get().setRole(userRole);
-
+          
+            foundUser.get().setRole(user.getRole());
+            foundUser.get().setPhoneNumber(user.getPhoneNumber());
+            foundUser.get().setAddress(user.getAddress());
+            foundUser.get().setBio(user.getBio());
+            if (user.getPhotoUrl() != null && !user.getPhotoUrl().isEmpty()) {
+                foundUser.get().setPhotoUrl(user.getPhotoUrl());
+            }
             User updatedUser = userRepository.save(foundUser.get());
             return new GlobalResponseHandler().handleResponse("User updated successfully",
                     updatedUser, HttpStatus.OK, request);

@@ -47,6 +47,17 @@ public class User implements UserDetails {
     @JoinColumn(name = "role_id", referencedColumnName = "id", nullable = false)
     private Role role;
 
+    @Column(name = "photo_url", length = 255)
+    private String photoUrl;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "bio")
+    private String bio;
 
     // Constructors
     public User() {}
@@ -148,5 +159,31 @@ public class User implements UserDetails {
     public User setRole(Role role) {
         this.role = role;
         return this;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+    public String getAddress() {
+        return address;
+    }
+    public void setAddress(String address) {
+        this.address = address;
+    }
+    public String getBio() {
+        return bio;
+    } public void setBio(String bio) {
+        this.bio = bio;
     }
 }
