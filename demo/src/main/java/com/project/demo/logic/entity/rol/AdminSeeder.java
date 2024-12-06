@@ -34,11 +34,13 @@ public class AdminSeeder implements ApplicationListener<ContextRefreshedEvent> {
 
     private void createSuperAdministrator() {
         User superAdmin = new User();
+        superAdmin.setAddress("Heredia, San Francisco");
         superAdmin.setName("Super");
         superAdmin.setLastname("Admin");
         superAdmin.setEmail("super.admin@gmail.com");
         superAdmin.setPassword("superadmin123");
         superAdmin.setEnabled(true);
+        superAdmin.setPhoneNumber("85841515");
         superAdmin.setPhotoUrl("src\\assets\\img\\gallery\\gallery0.png");
 
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.SUPER_ADMIN);
@@ -49,11 +51,13 @@ public class AdminSeeder implements ApplicationListener<ContextRefreshedEvent> {
         }
 
         var user = new User();
+        user.setPhotoUrl(superAdmin.getAddress());
         user.setName(superAdmin.getName());
         user.setLastname(superAdmin.getLastname());
         user.setEmail(superAdmin.getEmail());
         user.setPassword(passwordEncoder.encode(superAdmin.getPassword()));
         user.setRole(optionalRole.get());
+        user.setPhotoUrl(superAdmin.getPhoneNumber());
         user.setPhotoUrl(superAdmin.getPhotoUrl());
         userRepository.save(user);
     }

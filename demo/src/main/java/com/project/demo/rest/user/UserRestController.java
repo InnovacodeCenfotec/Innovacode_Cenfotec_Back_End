@@ -76,6 +76,11 @@ public class UserRestController {
                 user, HttpStatus.OK, request);
     }
 
+    private boolean isValidPhotoUrl(String url) {
+        String regex = "^(http://|https://)[a-zA-Z0-9\\-\\.]+\\.[a-zA-Z]{2,3}(/\\S*)?$";
+        return url.matches(regex);
+    }
+
     @PutMapping("/{userId}")
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
     public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody User user, HttpServletRequest request) {
@@ -87,7 +92,6 @@ public class UserRestController {
                 user.setPassword(passwordEncoder.encode(user.getPassword()));
             }
 
-
             foundUser.get().setName(user.getName());
             foundUser.get().setLastname(user.getLastname());
             foundUser.get().setEmail(user.getEmail());
@@ -98,9 +102,13 @@ public class UserRestController {
             foundUser.get().setRole(user.getRole());
             foundUser.get().setPhoneNumber(user.getPhoneNumber());
             foundUser.get().setAddress(user.getAddress());
-            foundUser.get().setBio(user.getBio());
             if (user.getPhotoUrl() != null && !user.getPhotoUrl().isEmpty()) {
-                foundUser.get().setPhotoUrl(user.getPhotoUrl());
+                if (isValidPhotoUrl(user.getPhotoUrl())) {
+                    foundUser.get().setPhotoUrl(user.getPhotoUrl());
+                } else {
+                    return new GlobalResponseHandler().handleResponse("Invalid photo URL",
+                            HttpStatus.BAD_REQUEST, request);
+                }
             }
             User updatedUser = userRepository.save(foundUser.get());
             return new GlobalResponseHandler().handleResponse("User updated successfully",
