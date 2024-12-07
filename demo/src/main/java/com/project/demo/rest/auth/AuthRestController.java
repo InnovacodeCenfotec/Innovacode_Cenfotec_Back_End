@@ -5,6 +5,7 @@ import com.project.demo.logic.entity.auth.JwtService;
 import com.project.demo.logic.entity.cloudinary.Image;
 import com.project.demo.logic.entity.cloudinary.ImageRepository;
 import com.project.demo.logic.entity.cloudinary.ImageService;
+import com.project.demo.logic.entity.auth.OAuth2AuthenticationService;
 import com.project.demo.logic.entity.emailSender.EmailServiceJava;
 import com.project.demo.logic.entity.resetPassword.ResetPasswordRequest;
 import com.project.demo.logic.entity.rol.Role;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -50,6 +52,10 @@ public class AuthRestController {
 
     @Autowired
     private ImageService imageService;
+    @Autowired
+    private OAuth2AuthenticationService oauth2AuthenticationService;
+
+
 
     private final AuthenticationService authenticationService;
     private final JwtService jwtService;
@@ -120,16 +126,18 @@ public class AuthRestController {
             throws IOException {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
-        Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
         String imageUrl = (String) uploadResult.get("url");
         String imageName = (String) uploadResult.get("public_id");
+
+
         Image imagen = new Image();
         imagen.setUrl(imageUrl);
         imagen.setName(imageName);
         imagen.setUser(user);
-        imagen.setSaveUrl(
-                "https://71c3-2800-860-7193-2e2-14c4-1e5c-dc72-4428.ngrok-free.app/" + "auth/saveImage/" + userId);
+        imagen.setSaveUrl("https://05b2-2800-860-7193-2e2-ad48-a1fa-d7a-a142.ngrok-free.app/"+"auth/saveImage/"+userId);
         imageRepository.save(imagen);
+
 
         String redirectScript = "<html><head><script type=\"text/javascript\">window.top.location.href = 'http://localhost:4200/app/galery';</script></head><body></body></html>";
 
@@ -139,17 +147,18 @@ public class AuthRestController {
         return new ResponseEntity<>(redirectScript, headers, HttpStatus.OK);
     }
 
-//    @GetMapping("/imagetoken/{id}")
-//    public String getImageToken(@PathVariable Long id) {
-//        Optional<Image> image = imageRepository.findById(id);
-//        String jwtImageToken = jwtService.generateImageToken(image.orElse(null));
-//        return jwtImageToken;
-//    }
-//
+    @GetMapping("/imagetoken/{id}")
+    public String getImageToken(@PathVariable Long id){
+        Optional<Image> image = imageRepository.findById(id);
+        String jwtImageToken = jwtService.generateImageToken(image.orElse(null));
+        return jwtImageToken;
+    }
+
+
 //    @PostMapping("/googleLogin/{idToken}")
 //    public ResponseEntity<LoginResponse> login(@PathVariable String idToken) {
 //        try {
-//            OAuth2User oAuth2User = googleTokenService.verifyToken(idToken);
+//            OAuth2User oAuth2User = oauth2AuthenticationService.verifyToken(idToken);
 //
 //            if (oAuth2User == null) {
 //                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -184,4 +193,5 @@ public class AuthRestController {
 //            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 //        }
 //    }
+
 }

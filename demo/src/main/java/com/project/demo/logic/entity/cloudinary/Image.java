@@ -16,17 +16,49 @@ public class Image {
 
     @Column(name = "name_image")
     private String name;
-
     @Column(name = "url_image")
     private String url;
-
+    @Column(name = "mode_image")
+    private String mode;
+    @Column(name = "saveurl_image")
+    private String saveUrl;
+    @Column(name = "sub_image")
+    private String sub;
     @CreationTimestamp
     @Column(updatable = false, name = "create_date")
     private Date createDate;
+    @Column(name = "likes_count")
+    private int likesCount = 0;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    private User user;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    public String getSaveUrl() {
+        return saveUrl;
+    }
+
+    public void setSaveUrl(String saveUrl) {
+        this.saveUrl = saveUrl;
+    }
+
+    public String getSub() {
+        return sub;
+    }
+
+    public void setSub(String sub) {
+        this.sub = sub;
+    }
 
     public Long getId() {
         return id;
@@ -66,6 +98,24 @@ public class Image {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public int getLikesCount() {
+        return likesCount;
+    }
+
+    public void setLikesCount(int likesCount) {
+        this.likesCount = likesCount;
+    }
+
+    public void incrementLikes() {
+        this.likesCount++;
+    }
+
+    public void decrementLikes() {
+        if (this.likesCount > 0) {
+            this.likesCount--;
+        }
     }
 }
 //
