@@ -2,9 +2,6 @@ package com.project.demo.rest.user;
 
 import com.project.demo.logic.entity.http.GlobalResponseHandler;
 import com.project.demo.logic.entity.http.Meta;
-import com.project.demo.logic.entity.rol.Role;
-import com.project.demo.logic.entity.rol.RoleEnum;
-import com.project.demo.logic.entity.rol.RoleRepository;
 import com.project.demo.logic.entity.user.User;
 import com.project.demo.logic.entity.user.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,8 +25,7 @@ import java.util.Optional;
 public class UserRestController {
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -68,11 +64,9 @@ public class UserRestController {
     @PostMapping
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
     public ResponseEntity<?> addUser(@RequestBody User user, HttpServletRequest request) {
-        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(optionalRole.get());
         userRepository.save(user);
-        return new GlobalResponseHandler().handleResponse("User creado exitosamente",
+        return new GlobalResponseHandler().handleResponse("User updated successfully",
                 user, HttpStatus.OK, request);
     }
 
@@ -80,31 +74,15 @@ public class UserRestController {
     @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
     public ResponseEntity<?> updateUser(@PathVariable Long userId, @RequestBody User user, HttpServletRequest request) {
         Optional<User> foundUser = userRepository.findById(userId);
-        //Role userRole = foundUser.get().getRole();
         if(foundUser.isPresent()) {
-
-            if (!user.getPassword().isEmpty()) {
-                user.setPassword(passwordEncoder.encode(user.getPassword()));
-            }
-
-
+            user.setPassword(passwordEncoder.encode(user.getPassword()));
             foundUser.get().setName(user.getName());
             foundUser.get().setLastname(user.getLastname());
             foundUser.get().setEmail(user.getEmail());
-            //foundUser.get().setRole(user.getRole());
-            foundUser.get().setEnabled(user.isEnabled());
-            //foundUser.get().setRole(userRole);
-          
             foundUser.get().setRole(user.getRole());
-            foundUser.get().setPhoneNumber(user.getPhoneNumber());
-            foundUser.get().setAddress(user.getAddress());
-            foundUser.get().setBio(user.getBio());
-            if (user.getPhotoUrl() != null && !user.getPhotoUrl().isEmpty()) {
-                foundUser.get().setPhotoUrl(user.getPhotoUrl());
-            }
-            User updatedUser = userRepository.save(foundUser.get());
+            userRepository.save(foundUser.get());
             return new GlobalResponseHandler().handleResponse("User updated successfully",
-                    updatedUser, HttpStatus.OK, request);
+                    user, HttpStatus.OK, request);
         } else {
             return new GlobalResponseHandler().handleResponse("User id " + userId + " not found"  ,
                     HttpStatus.NOT_FOUND, request);
@@ -130,21 +108,6 @@ public class UserRestController {
     public User authenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (User) authentication.getPrincipal();
-    }
-    @PatchMapping("/{userId}/disable")
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN')")
-    public ResponseEntity<?> disableUser(@PathVariable Long userId, HttpServletRequest request) {
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            user.setEnabled(false); // Disable the user
-            userRepository.save(user); // Save changes
-            return new GlobalResponseHandler().handleResponse("User disabled successfully",
-                    user, HttpStatus.OK, request);
-        } else {
-            return new GlobalResponseHandler().handleResponse("User id " + userId + " not found",
-                    HttpStatus.NOT_FOUND, request);
-        }
     }
 
 }

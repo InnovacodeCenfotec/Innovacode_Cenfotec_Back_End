@@ -4,11 +4,11 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.project.demo.logic.entity.auth.AuthenticationService;
 import com.project.demo.logic.entity.auth.JwtService;
+import com.project.demo.logic.entity.auth.OAuth2AuthenticationService;
 import com.project.demo.logic.entity.cloudinary.Image;
 import com.project.demo.logic.entity.cloudinary.ImageRepository;
 import com.project.demo.logic.entity.cloudinary.ImageService;
 import com.project.demo.logic.entity.emailSender.EmailServiceJava;
-import com.project.demo.logic.entity.http.GlobalResponseHandler;
 import com.project.demo.logic.entity.resetPassword.ResetPasswordRequest;
 import com.project.demo.logic.entity.rol.Role;
 import com.project.demo.logic.entity.rol.RoleEnum;
@@ -17,15 +17,12 @@ import com.project.demo.logic.entity.user.LoginResponse;
 import com.project.demo.logic.entity.user.User;
 import com.project.demo.logic.entity.user.UserRepository;
 import com.project.demo.logic.entity.user.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 
 import java.io.IOException;
 import java.util.Map;
@@ -34,6 +31,7 @@ import java.util.Optional;
 @RequestMapping("/auth")
 @RestController
 public class AuthRestController {
+
 
     @Autowired
     private UserRepository userRepository;
@@ -50,6 +48,9 @@ public class AuthRestController {
     @Autowired
     private EmailServiceJava emailService;
 
+    @Autowired
+    private OAuth2AuthenticationService oauth2AuthenticationService;
+
     private final Cloudinary cloudinary;
 
     @Autowired
@@ -58,60 +59,29 @@ public class AuthRestController {
     @Autowired
     private ImageService imageService;
 
+
     private final AuthenticationService authenticationService;
     private final JwtService jwtService;
 
-    public AuthRestController(JwtService jwtService, AuthenticationService authenticationService,
-            Cloudinary cloudinary) {
+    public AuthRestController(JwtService jwtService, AuthenticationService authenticationService, Cloudinary cloudinary ) {
         this.jwtService = jwtService;
         this.authenticationService = authenticationService;
         this.cloudinary = cloudinary;
     }
 
-    /*
-     * @PostMapping("/login")
-     * public ResponseEntity<LoginResponse> authenticate(@RequestBody User user) {
-     * User authenticatedUser = authenticationService.authenticate(user);
-     * 
-     * String jwtToken = jwtService.generateToken(authenticatedUser);
-     * 
-     * LoginResponse loginResponse = new LoginResponse();
-     * loginResponse.setToken(jwtToken);
-     * loginResponse.setExpiresIn(jwtService.getExpirationTime());
-     * 
-     * Optional<User> foundedUser = userRepository.findByEmail(user.getEmail());
-     * 
-     * foundedUser.ifPresent(loginResponse::setAuthUser);
-     * 
-     * return ResponseEntity.ok(loginResponse);
-     * }
-     */
     @PostMapping("/login")
-    public ResponseEntity<?> authenticate(@RequestBody User user, HttpServletRequest request) {
-        Optional<User> foundedUser = userRepository.findByEmail(user.getEmail());
-
-        if (foundedUser.isEmpty()) {
-            return new GlobalResponseHandler().handleResponse("No se ha encontrado el usuario",
-                    HttpStatus.UNAUTHORIZED, request);
-        }
-
-        User authenticatedUser = foundedUser.get();
-
-        // Check if the user is disabled
-        if (!authenticatedUser.isEnabled()) {
-            return new GlobalResponseHandler().handleResponse("Usuario deshabilitado",
-                    HttpStatus.FORBIDDEN, request);
-        }
-
-        // Proceed with authentication if the user is not disabled
-        authenticatedUser = authenticationService.authenticate(user);
+    public ResponseEntity<LoginResponse> authenticate(@RequestBody User user) {
+        User authenticatedUser = authenticationService.authenticate(user);
 
         String jwtToken = jwtService.generateToken(authenticatedUser);
 
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setToken(jwtToken);
         loginResponse.setExpiresIn(jwtService.getExpirationTime());
-        loginResponse.setAuthUser(authenticatedUser);
+
+        Optional<User> foundedUser = userRepository.findByEmail(user.getEmail());
+
+        foundedUser.ifPresent(loginResponse::setAuthUser);
 
         return ResponseEntity.ok(loginResponse);
     }
@@ -130,7 +100,6 @@ public class AuthRestController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Role not found");
         }
         user.setRole(optionalRole.get());
-        user.setEnabled(true);
         User savedUser = userRepository.save(user);
         return ResponseEntity.ok(savedUser);
     }
@@ -141,10 +110,8 @@ public class AuthRestController {
         if (token == null) {
             return ResponseEntity.badRequest().body("User not found");
         }
-        String resetLink = "Enter in this link to reset your password: " + "http://localhost:4200/reset-password"
-                + " Your token is " + token;
-        emailService.sendEmail(user.getEmail(), "Password Reset Request",
-                "To reset your password, click the link below:\n" + resetLink);
+        String resetLink = "Enter in this link to reset your password: " + "http://localhost:4200/reset-password" + " Your token is " + token;
+        emailService.sendEmail(user.getEmail(), "Password Reset Request", "To reset your password, click the link below:\n" + resetLink);
         return ResponseEntity.ok("Password reset link sent to your email");
     }
 
@@ -157,41 +124,35 @@ public class AuthRestController {
         return ResponseEntity.ok("Password reset successfully");
     }
 
-    @PostMapping("/saveImage/{userId}")
-    public ResponseEntity<String> addImagen(@RequestParam("file") MultipartFile file, @PathVariable Long userId)
-            throws IOException {
+    @PostMapping("/saveImage")
+    public Image addImagen(@RequestParam("file") MultipartFile file, @RequestParam("userId") Long userId) throws IOException {
+
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
-        Map<String, Object> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
         String imageUrl = (String) uploadResult.get("url");
         String imageName = (String) uploadResult.get("public_id");
+
+
         Image imagen = new Image();
         imagen.setUrl(imageUrl);
         imagen.setName(imageName);
         imagen.setUser(user);
-        imagen.setSaveUrl(
-                "https://71c3-2800-860-7193-2e2-14c4-1e5c-dc72-4428.ngrok-free.app/" + "auth/saveImage/" + userId);
-        imageRepository.save(imagen);
-
-        String redirectScript = "<html><head><script type=\"text/javascript\">window.top.location.href = 'http://localhost:4200/app/galery';</script></head><body></body></html>";
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.TEXT_HTML);
-
-        return new ResponseEntity<>(redirectScript, headers, HttpStatus.OK);
+        return imageRepository.save(imagen);
     }
 
-//    @GetMapping("/imagetoken/{id}")
-//    public String getImageToken(@PathVariable Long id) {
-//        Optional<Image> image = imageRepository.findById(id);
-//        String jwtImageToken = jwtService.generateImageToken(image.orElse(null));
-//        return jwtImageToken;
-//    }
-//
+    @GetMapping("/imagetoken/{id}")
+    public String getImageToken(@PathVariable Long id){
+        Optional<Image> image = imageRepository.findById(id);
+        String jwtImageToken = jwtService.generateImageToken(image.orElse(null));
+        return jwtImageToken;
+    }
+
+
 //    @PostMapping("/googleLogin/{idToken}")
 //    public ResponseEntity<LoginResponse> login(@PathVariable String idToken) {
 //        try {
-//            OAuth2User oAuth2User = googleTokenService.verifyToken(idToken);
+//            OAuth2User oAuth2User = oauth2AuthenticationService.verifyToken(idToken);
 //
 //            if (oAuth2User == null) {
 //                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -226,4 +187,5 @@ public class AuthRestController {
 //            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
 //        }
 //    }
+
 }
