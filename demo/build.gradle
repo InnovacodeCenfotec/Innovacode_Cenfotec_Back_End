@@ -2,7 +2,6 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.2.5'
 	id 'io.spring.dependency-management' version '1.1.4'
-	id 'jacoco'
 }
 
 group = 'com.project'
@@ -31,28 +30,11 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 	implementation 'com.sun.mail:jakarta.mail:2.0.1' //email service
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
-	implementation 'io.github.cdimascio:dotenv-java:2.2.4'
+	// https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http44
 	implementation 'com.cloudinary:cloudinary-http44:1.39.0'
 
-
 }
-test {
-	testLogging {
-		events "passed", "skipped", "failed"
-		showStandardStreams = true
-	}
-}
-jacocoTestReport {
-	dependsOn test
-}
-
 
 tasks.named('test') {
 	useJUnitPlatform()
 }
-
-
-test {
-	finalizedBy jacocoTestReport
-}
-
