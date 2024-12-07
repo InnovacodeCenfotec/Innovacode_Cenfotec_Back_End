@@ -9,6 +9,7 @@ import com.project.demo.logic.entity.cloudinary.Image;
 import com.project.demo.logic.entity.cloudinary.ImageRepository;
 import com.project.demo.logic.entity.cloudinary.ImageService;
 import com.project.demo.logic.entity.emailSender.EmailServiceJava;
+import com.project.demo.logic.entity.http.GlobalResponseHandler;
 import com.project.demo.logic.entity.resetPassword.ResetPasswordRequest;
 import com.project.demo.logic.entity.rol.Role;
 import com.project.demo.logic.entity.rol.RoleEnum;
@@ -17,6 +18,7 @@ import com.project.demo.logic.entity.user.LoginResponse;
 import com.project.demo.logic.entity.user.User;
 import com.project.demo.logic.entity.user.UserRepository;
 import com.project.demo.logic.entity.user.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -72,18 +74,31 @@ public class AuthRestController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody User user) {
-        User authenticatedUser = authenticationService.authenticate(user);
+    public ResponseEntity<?> authenticate(@RequestBody User user, HttpServletRequest request) {
+        Optional<User> foundedUser = userRepository.findByEmail(user.getEmail());
+
+        if (foundedUser.isEmpty()) {
+            return new GlobalResponseHandler().handleResponse("No se ha encontrado el usuario"  ,
+                    HttpStatus.UNAUTHORIZED, request);
+        }
+
+        User authenticatedUser = foundedUser.get();
+
+        // Check if the user is disabled
+        if (!authenticatedUser.isEnabled()) {
+            return new GlobalResponseHandler().handleResponse("Usuario deshabilitado"  ,
+                    HttpStatus.FORBIDDEN, request);
+        }
+
+        // Proceed with authentication if the user is not disabled
+        authenticatedUser = authenticationService.authenticate(user);
 
         String jwtToken = jwtService.generateToken(authenticatedUser);
 
         LoginResponse loginResponse = new LoginResponse();
         loginResponse.setToken(jwtToken);
         loginResponse.setExpiresIn(jwtService.getExpirationTime());
-
-        Optional<User> foundedUser = userRepository.findByEmail(user.getEmail());
-
-        foundedUser.ifPresent(loginResponse::setAuthUser);
+        loginResponse.setAuthUser(authenticatedUser);
 
         return ResponseEntity.ok(loginResponse);
     }
@@ -126,8 +141,6 @@ public class AuthRestController {
         return ResponseEntity.ok("Password reset successfully");
     }
 
-
-
     @PostMapping("/saveImage/{userId}")
     public ResponseEntity<String> addImagen(@RequestParam("file") MultipartFile file, @PathVariable Long userId) throws IOException {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
@@ -150,7 +163,6 @@ public class AuthRestController {
 
         return new ResponseEntity<>(redirectScript, headers, HttpStatus.OK);
     }
-
 
     @GetMapping("/imagetoken/{id}")
     public String getImageToken(@PathVariable Long id){
