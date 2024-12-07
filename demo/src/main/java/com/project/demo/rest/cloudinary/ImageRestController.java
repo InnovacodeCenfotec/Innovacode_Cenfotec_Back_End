@@ -80,7 +80,7 @@ public class ImageRestController {
         imagen.setUrl(imageUrl);
         imagen.setName(imageName);
         imagen.setUser(user);
-        imagen.setSaveUrl("ngrok.url/"+"auth/saveImage/"+user);
+        imagen.setSaveUrl("https://05b2-2800-860-7193-2e2-ad48-a1fa-d7a-a142.ngrok-free.app/"+"auth/saveImage/"+userId);
         return imageRepository.save(imagen);
     }
 

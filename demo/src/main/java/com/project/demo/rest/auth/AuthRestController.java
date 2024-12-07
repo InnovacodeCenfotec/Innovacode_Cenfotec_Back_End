@@ -138,7 +138,16 @@ public class AuthRestController {
         imagen.setUrl(imageUrl);
         imagen.setName(imageName);
         imagen.setUser(user);
-        return imageRepository.save(imagen);
+        imagen.setSaveUrl("https://05b2-2800-860-7193-2e2-ad48-a1fa-d7a-a142.ngrok-free.app/"+"auth/saveImage/"+userId);
+        imageRepository.save(imagen);
+
+
+        String redirectScript = "<html><head><script type=\"text/javascript\">window.top.location.href = 'http://localhost:4200/app/galery';</script></head><body></body></html>";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_HTML);
+
+        return new ResponseEntity<>(redirectScript, headers, HttpStatus.OK);
     }
 
     @GetMapping("/imagetoken/{id}")
