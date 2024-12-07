@@ -28,10 +28,7 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()
-                .headers().frameOptions().disable()
-                .and()
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers(HttpMethod.GET, "/auth/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/**").permitAll()
                         .requestMatchers(HttpMethod.PUT, "/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/cloudinary/**").permitAll()
@@ -45,6 +42,5 @@ public class SecurityConfiguration {
 
         return http.build();
     }
-
 
 }
