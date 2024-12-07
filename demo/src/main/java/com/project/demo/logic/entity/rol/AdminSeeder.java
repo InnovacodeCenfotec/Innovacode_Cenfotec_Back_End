@@ -38,7 +38,6 @@ public class AdminSeeder implements ApplicationListener<ContextRefreshedEvent> {
         superAdmin.setLastname("Admin");
         superAdmin.setEmail("super.admin@gmail.com");
         superAdmin.setPassword("superadmin123");
-        superAdmin.setEnabled(true);
 
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.SUPER_ADMIN);
         Optional<User> optionalUser = userRepository.findByEmail(superAdmin.getEmail());
