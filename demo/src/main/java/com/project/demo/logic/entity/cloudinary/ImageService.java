@@ -26,6 +26,7 @@ public class ImageService {
     @Autowired
     private UserRepository userRepository;
 
+
     public String deleteImage(Long id) {
         Optional<Image> imageOpt = imageRepository.findById(id);
 
