@@ -17,15 +17,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-
 @Service
 public class JwtService {
-
-    private final String clientSecret = "de2a79fc86384b9ca47c0eec5698d34b";
-    private String saveUrl = "ngrok.com/auth/saveImage/";
-
     @Value("${security.jwt.secret-key}")
     private String secretKey;
 
@@ -34,10 +27,6 @@ public class JwtService {
 
     @Value("${pixlr.api.key}")
     private String pixlrApiKey;
-
-    @Value("de2a79fc86384b9ca47c0eec5698d34b")
-    private String pixlrApiSecret;
-
 
     
 
@@ -62,31 +51,20 @@ public class JwtService {
         return jwtExpiration;
     }
 
-    private String encodeKey(String key) {
-        byte[] encodedKey = key.getBytes(StandardCharsets.UTF_8);
-        return Base64.getEncoder().encodeToString(encodedKey);
-    }
 
     public String generateImageToken(Image tokenData) {
-
-
-
         Map<String, Object> claims = new HashMap<>();
-        claims.put("sub", "672fb34c79530704722e3056");
-        claims.put("name", "test");
         claims.put("mode", "http");
         claims.put("openUrl", tokenData.getUrl());
-        claims.put("saveUrl", tokenData.getSaveUrl());
-
-
-
-        String encodedKey = encodeKey(clientSecret);
+        claims.put("saveURL", tokenData.getSaveUrl());
+        claims.put("sub", pixlrApiKey);
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(tokenData.getSub())
-                .setHeaderParam("typ", "JWT")
-                .signWith(SignatureAlgorithm.HS256, encodedKey)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -104,7 +82,6 @@ public class JwtService {
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
-
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
