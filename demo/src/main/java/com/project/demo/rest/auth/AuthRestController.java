@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -43,6 +44,7 @@ public class AuthRestController {
 
     @Autowired
     private OAuth2AuthenticationService oauth2AuthenticationService;
+
 
 
     private final AuthenticationService authenticationService;
@@ -107,6 +109,40 @@ public class AuthRestController {
         }
         return ResponseEntity.ok("Password reset successfully");
     }
+
+    @PostMapping("/saveImage")
+    public Image addImagen(@RequestParam("file") MultipartFile file, @RequestParam("userId") Long userId) throws IOException {
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
+        Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+        String imageUrl = (String) uploadResult.get("url");
+        String imageName = (String) uploadResult.get("public_id");
+
+
+        Image imagen = new Image();
+        imagen.setUrl(imageUrl);
+        imagen.setName(imageName);
+        imagen.setUser(user);
+        imagen.setSaveUrl("https://05b2-2800-860-7193-2e2-ad48-a1fa-d7a-a142.ngrok-free.app/"+"auth/saveImage/"+userId);
+        imageRepository.save(imagen);
+
+
+        String redirectScript = "<html><head><script type=\"text/javascript\">window.top.location.href = 'http://localhost:4200/app/galery';</script></head><body></body></html>";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.TEXT_HTML);
+
+        return new ResponseEntity<>(redirectScript, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/imagetoken/{id}")
+    public String getImageToken(@PathVariable Long id){
+        Optional<Image> image = imageRepository.findById(id);
+        String jwtImageToken = jwtService.generateImageToken(image.orElse(null));
+        return jwtImageToken;
+    }
+
 
 //    @PostMapping("/googleLogin/{idToken}")
 //    public ResponseEntity<LoginResponse> login(@PathVariable String idToken) {
