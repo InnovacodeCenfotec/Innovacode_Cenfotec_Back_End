@@ -53,6 +53,7 @@ public class AuthRestController {
     @Autowired
     private OAuth2AuthenticationService oauth2AuthenticationService;
 
+<<<<<<< HEAD
     private final Cloudinary cloudinary;
 
     @Autowired
@@ -61,6 +62,8 @@ public class AuthRestController {
     @Autowired
     private ImageService imageService;
 
+=======
+>>>>>>> parent of 58389cc (Merge branch 'bloqueos' into presentación)
 
     private final AuthenticationService authenticationService;
     private final JwtService jwtService;
@@ -126,6 +129,7 @@ public class AuthRestController {
         return ResponseEntity.ok("Password reset successfully");
     }
 
+<<<<<<< HEAD
 
 
     @PostMapping("/saveImage/{userId}")
@@ -160,6 +164,8 @@ public class AuthRestController {
     }
 
 
+=======
+>>>>>>> parent of 58389cc (Merge branch 'bloqueos' into presentación)
 //    @PostMapping("/googleLogin/{idToken}")
 //    public ResponseEntity<LoginResponse> login(@PathVariable String idToken) {
 //        try {
